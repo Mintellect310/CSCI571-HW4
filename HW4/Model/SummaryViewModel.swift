@@ -7,7 +7,7 @@ class SummaryViewModel: ObservableObject {
     @Published var summary: Summary?
     @Published var isLoading = false
     
-    func fetchStockInfo(for ticker: String) {
+    func fetch(for ticker: String) {
         isLoading = true
         let urlString = "\(Constants.host)/summary/\(ticker)"
         

@@ -1,6 +1,6 @@
 import Foundation
 
-struct Favorite {
+struct Favorite: Identifiable {
     let id: String
     let name: String
     var currentPrice: Double
@@ -8,4 +8,8 @@ struct Favorite {
     var changePercent: Double
 }
 
-typealias FavouritesGet = [String]
+typealias FavoritesGet = [String]
+
+struct ServerMessage: Decodable {
+    let message: String
+}

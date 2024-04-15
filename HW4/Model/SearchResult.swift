@@ -1,8 +1,7 @@
-//
-//  SearchResult.swift
-//  HW4
-//
-//  Created by Maheeth Reddy Maramreddy on 4/7/24.
-//
-
 import Foundation
+
+struct SearchResult: Identifiable, Decodable {
+    var id = UUID()
+    var description: String
+    var symbol: String
+}

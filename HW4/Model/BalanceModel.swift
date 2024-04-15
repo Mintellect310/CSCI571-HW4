@@ -1,8 +1,6 @@
-//
-//  BalanceModel.swift
-//  HW4
-//
-//  Created by Maheeth Reddy Maramreddy on 4/13/24.
-//
-
 import Foundation
+
+struct Balance: Codable {
+    let success: Bool
+    let balance: Double
+}

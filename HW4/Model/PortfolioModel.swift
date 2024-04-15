@@ -1,8 +1,15 @@
-//
-//  PortfolioModel.swift
-//  HW4
-//
-//  Created by Maheeth Reddy Maramreddy on 4/13/24.
-//
-
 import Foundation
+
+struct PortfolioItemGet: Decodable {
+    var quantity: Int
+    var totalCost: Double
+}
+
+typealias PortfolioItemsGet = [String: PortfolioItemGet]
+
+struct PortfolioItem: Identifiable, Codable {
+    let id: String
+    var quantity: Int
+    var totalCost: Double
+    var latestPrice: Double?
+}

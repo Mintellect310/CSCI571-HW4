@@ -1,7 +1,7 @@
 import Foundation
 
 // struct for the stock market data entry
-struct HCEntry: Decodable {
+struct HistEntry: Decodable {
     let v: Int        // Volume
     let vw: Double    // VWAP (Volume Weighted Average Price)
     let o: Double     // Open price
@@ -22,7 +22,7 @@ struct HistoricalChart: Decodable {
     let queryCount: Int
     let resultsCount: Int
     let adjusted: Bool
-    let results: [HCEntry]
+    let results: [HistEntry]
     let status: String
     let request_id: String
     let count: Int

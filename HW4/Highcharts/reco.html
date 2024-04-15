@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reco Chart</title>
+
+    <style>
+      body,
+      html {
+        margin: 0;
+        padding: 0;
+      }
+
+      #container {
+        width: 100vw;
+      }
+    </style>
+
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/export-data.js"></script>
+    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+  </head>
+  <body>
+    <div id="container">Chart Goes here</div>
+
+    <script>
+      if (window.webkit && window.webkit.messageHandlers) {
+        var oldLog = console.log;
+        console.log = function (message) {
+          window.webkit.messageHandlers.logHandler.postMessage(
+            "Log: " + message
+          );
+          oldLog.apply(console, arguments);
+        };
+
+        var oldError = console.error;
+        console.error = function (message) {
+          window.webkit.messageHandlers.errorHandler.postMessage(
+            "Error: " + message
+          );
+          oldError.apply(console, arguments);
+        };
+      }
+    </script>
+  </body>
+</html>

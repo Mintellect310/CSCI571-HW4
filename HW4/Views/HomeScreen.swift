@@ -32,12 +32,10 @@ struct HomeScreen: View {
                     // Portfolio
                     let balance = balanceViewModel.balance ?? 99999
                     PortfolioView(netWorth: stockWorth + balance, balance: balance)
-                        .environmentObject(portfolioViewModel)
                     
                     // Favorites
                     // TODO: Delete
                     FavoritesView()
-                        .environmentObject(favoritesViewModel)
                     
                     // Footer
                     Section {

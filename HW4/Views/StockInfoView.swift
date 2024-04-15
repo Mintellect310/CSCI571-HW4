@@ -11,6 +11,10 @@ struct StockInfoView: View {
     @StateObject private var hourlyChartViewModel = HourlyChartViewModel()
     @StateObject private var newsViewModel = NewsViewModel()
     
+    @EnvironmentObject var balanceViewModel: BalanceViewModel
+    @EnvironmentObject var portfolioViewModel: PortfolioViewModel
+    @EnvironmentObject var favoritesViewModel: FavoritesViewModel
+    
     var ticker: String
     
     var body: some View {
@@ -19,6 +23,9 @@ struct StockInfoView: View {
                 if stockInfoViewModel.isLoading || summaryViewModel.isLoading || insightsViewModel.isLoading || historicalChartViewModel.isLoading || hourlyChartViewModel.isLoading || newsViewModel.isLoading {
                     ProgressView("Fetching Data...")
                 } else if let stockInfo = stockInfoViewModel.stockInfo, let summary = summaryViewModel.summary, let marketAnalysis = insightsViewModel.marketAnalysis, let historicalChartJson = historicalChartViewModel.historicalChart, let hourlyChartJson = hourlyChartViewModel.hourlyChart, let news = newsViewModel.news {
+                    
+                    //Text("\(favoritesViewModel.favorites)")
+                    //Text("\(favoritesViewModel.favorites.contains{$0.id==ticker})")
                     
                     ScrollView(.vertical, showsIndicators: true) {
                         // Stock Info
@@ -75,10 +82,9 @@ struct StockInfoView: View {
             //.frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(.bottom)
             //.border(Color.black)
-            
             .navigationTitle(ticker)
             .toolbar {
-                FavoriteButton()
+                FavoriteButton(ticker: ticker)
             }
         }
         .onAppear() {
@@ -102,6 +108,20 @@ struct StockInfoView: View {
     }
 }
 
-#Preview {
-    StockInfoView(ticker: "AAPL")
+struct StockInfoView_Previews: PreviewProvider {
+    static var previews: some View {
+        let balanceViewModel = BalanceViewModel()
+        balanceViewModel.balance = 21747.26
+        
+        let portfolioViewModel = PortfolioViewModel()
+        portfolioViewModel.loadDummyData()
+        
+        let favoritesViewModel = FavoritesViewModel()
+        favoritesViewModel.loadDummyData()
+
+        return StockInfoView(ticker: "QCOM")
+            .environmentObject(balanceViewModel)
+            .environmentObject(portfolioViewModel)
+            .environmentObject(favoritesViewModel)
+    }
 }

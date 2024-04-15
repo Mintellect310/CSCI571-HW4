@@ -11,7 +11,7 @@ struct NewsView: View {
                 .font(.title)
             
             if(news.count <= 0) {
-                Text("Not available")
+                Text("News not available")
             }
             
             if let firstNewsItem = news.first {
@@ -111,9 +111,11 @@ struct FirstNewsItemView: View {
         VStack(alignment: .leading) {
             KFImage(URL(string: newsItem.image))
                 .resizable()
-                .aspectRatio(contentMode: .fit)
+                .aspectRatio(contentMode: .fill)
+                .frame(height: 200)
                 .cornerRadius(10)
                 .padding(.bottom)
+                //.border(Color.black)
             
             // Source and time label
             HStack {

@@ -2,9 +2,30 @@ import Foundation
 import Alamofire
 
 class FavoritesViewModel: ObservableObject {
-    @Published var favorites: [Favorite] = []
+    @Published var favorites: [Favorite] = [] {
+        didSet {
+            saveFavorites()
+        }
+    }
     @Published var isLoading = false
     @Published var isPricesUpdating = false
+    
+    init() {
+        loadFavorites()
+    }
+    
+    private func saveFavorites() {
+        if let encoded = try? JSONEncoder().encode(favorites) {
+            UserDefaults.standard.set(encoded, forKey: "Favorites")
+        }
+    }
+    
+    private func loadFavorites() {
+        if let favoritesData = UserDefaults.standard.data(forKey: "Favorites"),
+           let decodedFavorites = try? JSONDecoder().decode([Favorite].self, from: favoritesData) {
+            favorites = decodedFavorites
+        }
+    }
     
     func moveFavorite(from source: IndexSet, to destination: Int) {
         favorites.move(fromOffsets: source, toOffset: destination)
@@ -78,6 +99,27 @@ class FavoritesViewModel: ObservableObject {
                     print(error)
                 }
                 completion()
+            }
+        }
+    }
+    
+    func add(ticker: String) {
+        let urlString = "\(Constants.host)/watchlist/\(ticker)"
+        
+        AF.request(urlString, method: .post).responseDecodable(of: ServerMessage.self) { response in
+            DispatchQueue.main.async {
+                self.isLoading = false
+                switch response.result {
+                case .success(let message):
+                    print(message.message)
+                    if let statusCode = response.response?.statusCode, statusCode == 200 {
+                        self.fetchLatestPrice(for: ticker) {
+                            print("Fetched newly added ticker data")
+                        }
+                    }
+                case .failure(let error):
+                    print("Error adding \(ticker) to watchlist: \(error)")
+                }
             }
         }
     }

@@ -1,6 +1,6 @@
 import Foundation
 
-struct Favorite: Identifiable {
+struct Favorite: Identifiable, Codable {
     let id: String
     let name: String
     var currentPrice: Double

@@ -26,7 +26,6 @@ struct FavoriteButton: View {
     
     private func toggleFavorite() {
         if isFavorite {
-            // Assuming deleteFavorite(at:) takes an IndexSet, adjust according to your actual implementation
             if let index = favoritesViewModel.favorites.firstIndex(where: { $0.id == ticker }) {
                 favoritesViewModel.deleteFavorite(at: IndexSet(integer: index))
             }

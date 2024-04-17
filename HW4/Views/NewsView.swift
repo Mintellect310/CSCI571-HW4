@@ -112,7 +112,7 @@ struct FirstNewsItemView: View {
             KFImage(URL(string: newsItem.image))
                 .resizable()
                 .aspectRatio(contentMode: .fill)
-                .frame(height: 200)
+                .frame(width: 200, height: 200)
                 .cornerRadius(10)
                 .padding(.bottom)
                 //.border(Color.black)

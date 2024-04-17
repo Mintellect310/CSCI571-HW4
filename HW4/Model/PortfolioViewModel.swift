@@ -2,12 +2,43 @@ import Foundation
 import Alamofire
 
 class PortfolioViewModel: ObservableObject {
-    @Published var portfolioItems: [PortfolioItem] = []
+    @Published var portfolioItems: [PortfolioItem] = [] {
+        didSet {
+            saveOrder()
+        }
+    }
     @Published var isLoading = false
     @Published var isPricesUpdating = false
     
+    private let portfolioOrderKey = "portfolioOrder"
+
+    init() {
+        loadOrder()
+    }
+    
     func movePortfolioItem(from source: IndexSet, to destination: Int) {
         portfolioItems.move(fromOffsets: source, toOffset: destination)
+    }
+    
+    private func saveOrder() {
+        let ids = portfolioItems.map { $0.id }
+        UserDefaults.standard.set(ids, forKey: portfolioOrderKey)
+    }
+    
+    private func loadOrder() {
+        guard let savedOrder = UserDefaults.standard.array(forKey: portfolioOrderKey) as? [String] else { return }
+        
+        var orderedItems = [PortfolioItem]()
+        for id in savedOrder {
+            if let item = portfolioItems.first(where: { $0.id == id }) {
+                orderedItems.append(item)
+            }
+        }
+        // Add any new items that were not present at the time the order was saved
+        for item in portfolioItems where !savedOrder.contains(item.id) {
+            orderedItems.append(item)
+        }
+        portfolioItems = orderedItems
     }
     
     func fetch() {
@@ -26,6 +57,7 @@ class PortfolioViewModel: ObservableObject {
                 }
             }
         }
+        loadOrder()
     }
     
     func fetchLatestPrices() {
@@ -60,6 +92,66 @@ class PortfolioViewModel: ObservableObject {
                     print(error)
                 }
                 completion()
+            }
+        }
+    }
+    
+    func buyStock(ticker: String, quantity: Int, totalCost: Double) {
+        let urlString = "\(Constants.host)/portfolio/buy"
+        let parameters = [
+            "ticker": ticker,
+            "quantity": quantity,
+            "totalCost": totalCost
+        ] as [String : Any]
+        
+        AF.request(urlString, method: .post, parameters: parameters, encoding: JSONEncoding.default).response { response in
+            DispatchQueue.main.async {
+                switch response.result {
+                case .success:
+                    if let index = self.portfolioItems.firstIndex(where: { $0.id == ticker }) {
+                        self.portfolioItems[index].quantity += quantity
+                        self.portfolioItems[index].totalCost += totalCost
+                    } else {
+                        let newItem = PortfolioItem(id: ticker, quantity: quantity, totalCost: totalCost, latestPrice: nil)
+                        self.portfolioItems.append(newItem)
+                    }
+                    // Fetch latest prices after updating the portfolio
+                    self.fetchLatestPrices()
+                    
+                case .failure(let error):
+                    print("Error buying stock: \(error)")
+                }
+            }
+        }
+    }
+    
+    func sellStock(ticker: String, quantity: Int, totalRevenue: Double) {
+        let urlString = "\(Constants.host)/portfolio/sell"
+        let parameters = [
+            "ticker": ticker,
+            "quantity": quantity,
+            "totalRevenue": totalRevenue
+        ] as [String : Any]
+        
+        AF.request(urlString, method: .post, parameters: parameters, encoding: JSONEncoding.default).response { response in
+            DispatchQueue.main.async {
+                switch response.result {
+                case .success:
+                    if let index = self.portfolioItems.firstIndex(where: { $0.id == ticker }) {
+                        var currentItem = self.portfolioItems[index]
+                        currentItem.quantity -= quantity
+                        currentItem.totalCost = currentItem.quantity > 0 ? (currentItem.totalCost * Double(currentItem.quantity - quantity) / Double(currentItem.quantity)) : 0
+                        
+                        if currentItem.quantity <= 0 {
+                            self.portfolioItems.remove(at: index)
+                        }
+                    }
+                    // Fetch latest prices after updating the portfolio
+                    self.fetchLatestPrices()
+                    
+                case .failure(let error):
+                    print("Error selling stock: \(error)")
+                }
             }
         }
     }

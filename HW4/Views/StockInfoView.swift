@@ -51,9 +51,10 @@ struct StockInfoView: View {
                         
                         
                         // TODO: Portfolio
+                        StockPortfolioView(ticker: ticker, stockInfo: stockInfo)
+                            .padding([.horizontal, .bottom])
                         
                         // Summary
-                        // TODO: Are peers clickable?
                         SummaryView(summary: summary)
                             .padding([.horizontal, .bottom])
                         
@@ -69,7 +70,7 @@ struct StockInfoView: View {
                             .frame(height: 400)
                             .padding()
                         
-                        // TODO: Make the sheet for each article
+                        // TODO: Width for first news item's image
                         NewsView(news: news)
                             .padding(.horizontal)
                         //.border(Color.red)

@@ -4,41 +4,39 @@ import Alamofire
 class PortfolioViewModel: ObservableObject {
     @Published var portfolioItems: [PortfolioItem] = [] {
         didSet {
-            saveOrder()
+            savePortfolio()
         }
     }
     @Published var isLoading = false
     @Published var isPricesUpdating = false
     
-    private let portfolioOrderKey = "portfolioOrder"
-
     init() {
-        loadOrder()
+        //print("Inside init:")
+        loadPortfolio()
+        //print("Finished init")
+    }
+    
+    private func savePortfolio() {
+        if let encoded = try? JSONEncoder().encode(portfolioItems) {
+            UserDefaults.standard.set(encoded, forKey: "Portfolio")
+            //print("savePortfolio: Portfolio saved successfully: \(portfolioItems)")
+        } else {
+            //print("savePortfolio: Failed to encode portfolio items.")
+        }
+    }
+    
+    private func loadPortfolio() {
+        if let portfolioData = UserDefaults.standard.data(forKey: "Portfolio"),
+           let decodedPortfolioItems = try? JSONDecoder().decode([PortfolioItem].self, from: portfolioData) {
+            portfolioItems = decodedPortfolioItems
+            //print("loadPortfolio: Portfolio loaded successfully: \(portfolioItems)")
+        } else {
+            //print("loadPortfolio: Failed to decode portfolio items.")
+        }
     }
     
     func movePortfolioItem(from source: IndexSet, to destination: Int) {
         portfolioItems.move(fromOffsets: source, toOffset: destination)
-    }
-    
-    private func saveOrder() {
-        let ids = portfolioItems.map { $0.id }
-        UserDefaults.standard.set(ids, forKey: portfolioOrderKey)
-    }
-    
-    private func loadOrder() {
-        guard let savedOrder = UserDefaults.standard.array(forKey: portfolioOrderKey) as? [String] else { return }
-        
-        var orderedItems = [PortfolioItem]()
-        for id in savedOrder {
-            if let item = portfolioItems.first(where: { $0.id == id }) {
-                orderedItems.append(item)
-            }
-        }
-        // Add any new items that were not present at the time the order was saved
-        for item in portfolioItems where !savedOrder.contains(item.id) {
-            orderedItems.append(item)
-        }
-        portfolioItems = orderedItems
     }
     
     func fetch() {
@@ -50,24 +48,24 @@ class PortfolioViewModel: ObservableObject {
                 self.isLoading = false
                 switch response.result {
                 case .success(let data):
-                    self.portfolioItems = data.map { PortfolioItem(id: $0.key, quantity: $0.value.quantity, totalCost: $0.value.totalCost) }
-                    self.fetchLatestPrices()
+                    //self.portfolioItems = data.map { PortfolioItem(id: $0.key, quantity: $0.value.quantity, totalCost: $0.value.totalCost, latestPrice: $0.value.totalCost/Double($0.value.quantity)) }
+                    //self.loadPortfolio()
+                    self.fetchLatestPrices(for: data)
                 case .failure(let error):
                     print(error)
                 }
             }
         }
-        loadOrder()
     }
     
-    func fetchLatestPrices() {
+    func fetchLatestPrices(for portfolioItemsGet: PortfolioItemsGet) {
         guard !portfolioItems.isEmpty else { return }
         isPricesUpdating = true
         let group = DispatchGroup()
         
-        for item in portfolioItems {
+        for item in portfolioItemsGet {
             group.enter()
-            fetchLatestPrice(for: item.id, completion: {
+            fetchLatestPrice(for: item, completion: {
                 group.leave()
             })
         }
@@ -78,7 +76,9 @@ class PortfolioViewModel: ObservableObject {
         }
     }
     
-    func fetchLatestPrice(for ticker: String, completion: @escaping () -> Void) {
+    func fetchLatestPrice(for dictItem: (key: String, value: PortfolioItemGet), completion: @escaping () -> Void) {
+        let ticker = dictItem.key
+        let portfolioItemGet = dictItem.value
         let urlString = "\(Constants.host)/stock/\(ticker)"
         
         AF.request(urlString).responseDecodable(of: StockInfo.self) { response in
@@ -86,7 +86,9 @@ class PortfolioViewModel: ObservableObject {
                 switch response.result {
                 case .success(let data):
                     if let index = self.portfolioItems.firstIndex(where: { $0.id == ticker }) {
-                        self.portfolioItems[index].latestPrice = data.currentPrice
+                        self.portfolioItems[index] = PortfolioItem(id: ticker, quantity: portfolioItemGet.quantity, totalCost: portfolioItemGet.totalCost, latestPrice: data.currentPrice)
+                    } else {
+                        self.portfolioItems.append(PortfolioItem(id: ticker, quantity: portfolioItemGet.quantity, totalCost: portfolioItemGet.totalCost, latestPrice: data.currentPrice))
                     }
                 case .failure(let error):
                     print(error)
@@ -112,11 +114,11 @@ class PortfolioViewModel: ObservableObject {
                         self.portfolioItems[index].quantity += quantity
                         self.portfolioItems[index].totalCost += totalCost
                     } else {
-                        let newItem = PortfolioItem(id: ticker, quantity: quantity, totalCost: totalCost, latestPrice: nil)
+                        let newItem = PortfolioItem(id: ticker, quantity: quantity, totalCost: totalCost, latestPrice: totalCost/Double(quantity))
                         self.portfolioItems.append(newItem)
                     }
                     // Fetch latest prices after updating the portfolio
-                    self.fetchLatestPrices()
+                    //self.fetchLatestPrices()
                     
                 case .failure(let error):
                     print("Error buying stock: \(error)")
@@ -141,13 +143,14 @@ class PortfolioViewModel: ObservableObject {
                         var currentItem = self.portfolioItems[index]
                         currentItem.quantity -= quantity
                         currentItem.totalCost = currentItem.quantity > 0 ? (currentItem.totalCost * Double(currentItem.quantity - quantity) / Double(currentItem.quantity)) : 0
+                        self.portfolioItems[index] = currentItem
                         
                         if currentItem.quantity <= 0 {
                             self.portfolioItems.remove(at: index)
                         }
                     }
                     // Fetch latest prices after updating the portfolio
-                    self.fetchLatestPrices()
+                    //self.fetchLatestPrices()
                     
                 case .failure(let error):
                     print("Error selling stock: \(error)")

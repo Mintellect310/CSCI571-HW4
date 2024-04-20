@@ -26,7 +26,7 @@ struct PortfolioView: View {
             }
             .font(.title3)
             
-            ForEach($portfolioViewModel.portfolioItems) { $item in
+            ForEach(portfolioViewModel.portfolioItems) { item in
                 NavigationLink (
                     destination: StockInfoView(ticker: item.id),
                     label: {
@@ -36,29 +36,25 @@ struct PortfolioView: View {
                                     .font(.title3)
                                     .fontWeight(.bold)
                                 Spacer()
-                                if let latestPrice = item.latestPrice {
-                                    let marketValue = Double(item.quantity) * latestPrice
-                                    Text("$\(String(format: "%.2f", marketValue))")
-                                        .font(.headline)
-                                        .fontWeight(.bold)
-                                }
+                                let marketValue = Double(item.quantity) * item.latestPrice
+                                Text("$\(String(format: "%.2f", marketValue))")
+                                    .font(.headline)
+                                    .fontWeight(.bold)
                             }
                             HStack {
                                 Text("\(item.quantity) shares")
                                     .foregroundStyle(.gray)
                                 Spacer()
-                                if let latestPrice = item.latestPrice {
-                                    let marketValue = Double(item.quantity) * latestPrice
-                                    let change = marketValue - item.totalCost
-                                    let pChange = (change / item.totalCost) * 100
-                                    
-                                    Text(Image(systemName: symbolForChange(change)))
-                                        .foregroundStyle(colorForChange(change))
-                                    Text("$\(String(format: "%.2f", change))")
-                                        .foregroundStyle(colorForChange(change))
-                                    Text("(\(String(format: "%.2f", pChange))%)")
-                                        .foregroundStyle(colorForChange(pChange))
-                                }
+                                let marketValue = Double(item.quantity) * item.latestPrice
+                                let change = marketValue - item.totalCost
+                                let pChange = (change / item.totalCost) * 100
+                                
+                                Text(Image(systemName: symbolForChange(change)))
+                                    .foregroundStyle(colorForChange(change))
+                                Text("$\(String(format: "%.2f", change))")
+                                    .foregroundStyle(colorForChange(change))
+                                Text("(\(String(format: "%.2f", pChange))%)")
+                                    .foregroundStyle(colorForChange(pChange))
                             }
                         }
                     }

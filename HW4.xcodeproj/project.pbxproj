@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B51BBBDB2BD38F41005F4BBB /* ToastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51BBBDA2BD38F41005F4BBB /* ToastView.swift */; };
 		B52261502BC7795B005B92F1 /* SummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B522614F2BC7795B005B92F1 /* SummaryView.swift */; };
 		B52261522BC77A70005B92F1 /* SummaryModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B52261512BC77A70005B92F1 /* SummaryModel.swift */; };
 		B52261542BC77A8E005B92F1 /* SummaryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B52261532BC77A8E005B92F1 /* SummaryViewModel.swift */; };
@@ -57,6 +58,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		B51BBBDA2BD38F41005F4BBB /* ToastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastView.swift; sourceTree = "<group>"; };
 		B522614D2BC7771A005B92F1 /* hourly.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = hourly.html; sourceTree = "<group>"; };
 		B522614F2BC7795B005B92F1 /* SummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SummaryView.swift; sourceTree = "<group>"; };
 		B52261512BC77A70005B92F1 /* SummaryModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SummaryModel.swift; sourceTree = "<group>"; };
@@ -214,6 +216,7 @@
 				B522614F2BC7795B005B92F1 /* SummaryView.swift */,
 				B57DB2252BC4D7B500BF6718 /* File.swift */,
 				B52D90382BCD194800208BAD /* StockPortfolioView.swift */,
+				B51BBBDA2BD38F41005F4BBB /* ToastView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -309,6 +312,7 @@
 				B5A6CEB22BCB4A5100C58938 /* BalanceViewModel.swift in Sources */,
 				B5A6CEA42BCA0F7600C58938 /* NewsModel.swift in Sources */,
 				B5D392ED2BCBD4A300D794F1 /* FavoritesModel.swift in Sources */,
+				B51BBBDB2BD38F41005F4BBB /* ToastView.swift in Sources */,
 				B564A3652BBCD7E80017D084 /* SplashScreen.swift in Sources */,
 				B57DB22A2BC6732C00BF6718 /* StockInfoView.swift in Sources */,
 				B564A3502BBCD0490017D084 /* ContentView.swift in Sources */,

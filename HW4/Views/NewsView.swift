@@ -8,7 +8,7 @@ struct NewsView: View {
     var body: some View {
         VStack(alignment: .leading) {
             Text("News")
-                .font(.title)
+                .font(.title2)
             
             if(news.count <= 0) {
                 Text("News not available")
@@ -65,8 +65,8 @@ struct NewsDetailSheetView: View {
             
             VStack(alignment: .leading) {
                 Text(newsItem.headline)
-                    .font(.title2)
                     .fontWeight(.semibold)
+                    .font(.title3)
                 
                 Text(newsItem.summary)
                     .font(.footnote)
@@ -112,7 +112,7 @@ struct FirstNewsItemView: View {
             KFImage(URL(string: newsItem.image))
                 .resizable()
                 .aspectRatio(contentMode: .fill)
-                .frame(width: 200, height: 200)
+                .frame(width: 365, height: 200)
                 .cornerRadius(10)
                 .padding(.bottom)
                 //.border(Color.black)
@@ -156,7 +156,8 @@ struct RestNewsItemView: View {
                 }
                 
                 Text(newsItem.headline)
-                    .font(.headline)
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
                     .foregroundColor(.primary)
                     .lineLimit(3)
             }
@@ -173,10 +174,6 @@ struct RestNewsItemView: View {
         .padding(.vertical, 5)
     }
 }
-
-//#Preview {
-//    NewsView(news: [])
-//}
 
 func timeSincePublished(from timestamp: Int) -> String {
     let publishedDate = Date(timeIntervalSince1970: TimeInterval(timestamp))

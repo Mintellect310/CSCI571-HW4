@@ -18,74 +18,77 @@ struct StockInfoView: View {
     var ticker: String
     
     var body: some View {
-        NavigationStack {
-            VStack(alignment: .leading) {
-                if stockInfoViewModel.isLoading || summaryViewModel.isLoading || insightsViewModel.isLoading || historicalChartViewModel.isLoading || hourlyChartViewModel.isLoading || newsViewModel.isLoading {
-                    ProgressView("Fetching Data...")
-                } else if let stockInfo = stockInfoViewModel.stockInfo, let summary = summaryViewModel.summary, let marketAnalysis = insightsViewModel.marketAnalysis, let historicalChartJson = historicalChartViewModel.historicalChart, let hourlyChartJson = hourlyChartViewModel.hourlyChart, let news = newsViewModel.news {
-                    
-                    //Text("\(favoritesViewModel.favorites)")
-                    //Text("\(favoritesViewModel.favorites.contains{$0.id==ticker})")
-                    
-                    ScrollView(.vertical, showsIndicators: true) {
-                        // Stock Info
-                        StockView(stockInfo: stockInfo)
-                            .padding(.horizontal)
-                        
-                        // TODO: Charts
-                        TabView {
-                            HourlyChartWebView(htmlName: "hourly", jsonData: hourlyChartJson, color: getChartColor(stockInfo.change))
-                                .tabItem {
-                                    Label("Hourly", systemImage: "chart.xyaxis.line")
-                                }
+        VStack {
+            if stockInfoViewModel.isLoading || summaryViewModel.isLoading || insightsViewModel.isLoading || historicalChartViewModel.isLoading || hourlyChartViewModel.isLoading || newsViewModel.isLoading {
+                ProgressView("Fetching Data...")
+            } else if let stockInfo = stockInfoViewModel.stockInfo, let summary = summaryViewModel.summary, let marketAnalysis = insightsViewModel.marketAnalysis, let historicalChartJson = historicalChartViewModel.historicalChart, let hourlyChartJson = hourlyChartViewModel.hourlyChart, let news = newsViewModel.news {
+                
+                //Text("\(favoritesViewModel.favorites)")
+                //Text("\(favoritesViewModel.favorites.contains{$0.id==ticker})")
+                
+                NavigationStack {
+                    VStack(alignment: .leading) {
+                        ScrollView(.vertical, showsIndicators: true) {
+                            // Stock Info
+                            StockView(stockInfo: stockInfo)
+                                .padding(.horizontal)
                             
-                            HistoricalChartWebView(htmlName: "historical", jsonData: historicalChartJson)
+                            // Charts
+                            TabView {
+                                HourlyChartWebView(htmlName: "hourly", jsonData: hourlyChartJson, color: getChartColor(stockInfo.change))
+                                    .tabItem {
+                                        Label("Hourly", systemImage: "chart.xyaxis.line")
+                                    }
+                                
+                                HistoricalChartWebView(htmlName: "historical", jsonData: historicalChartJson)
+                                //.border(Color.red)
+                                    .tabItem {
+                                        Label("Historical", systemImage: "clock.fill")
+                                    }
+                            }
+                            .frame(height: 480)
+                            .padding(.bottom)
+                            //.border(Color.black)
+                            
+                            // Portfolio
+                            StockPortfolioView(ticker: ticker, stockInfo: stockInfo)
+                                .padding([.horizontal, .bottom])
+                            
+                            // Summary
+                            SummaryView(summary: summary)
+                                .padding([.horizontal, .bottom])
+                            
+                            // Insights
+                            InsightsView(insights: marketAnalysis.insights, companyName: stockInfo.name)
+                                .padding([.horizontal, .bottom])
+                            
+                            // Recommendation Chart
+                            RecoChartWebView(htmlName: "reco", jsonData: marketAnalysis.reco)
+                                .frame(height: 400)
+                                .padding()
+                            
+                            // EPS Chart
+                            EPSChartWebView(htmlName: "reco", jsonData: marketAnalysis.earnings)
+                                .frame(height: 400)
+                                .padding()
+                            
+                            // News
+                            NewsView(news: news)
+                                .padding(.horizontal)
                             //.border(Color.red)
-                                .tabItem {
-                                    Label("Historical", systemImage: "clock.fill")
-                                }
+                            
+                            
+                            //Spacer()
                         }
-                        .frame(height: 480)
-                        .padding(.bottom)
-                        //.border(Color.black)
-                        
-                        
-                        // TODO: Portfolio
-                        StockPortfolioView(ticker: ticker, stockInfo: stockInfo)
-                            .padding([.horizontal, .bottom])
-                        
-                        // Summary
-                        SummaryView(summary: summary)
-                            .padding([.horizontal, .bottom])
-                        
-                        // TODO: Recommendation Chart, EPS Chart
-                        InsightsView(insights: marketAnalysis.insights, companyName: stockInfo.name)
-                            .padding([.horizontal, .bottom])
-                        
-                        RecoChartWebView(htmlName: "reco", jsonData: marketAnalysis.reco)
-                            .frame(height: 400)
-                            .padding()
-                        
-                        EPSChartWebView(htmlName: "reco", jsonData: marketAnalysis.earnings)
-                            .frame(height: 400)
-                            .padding()
-                        
-                        // TODO: Width for first news item's image
-                        NewsView(news: news)
-                            .padding(.horizontal)
-                        //.border(Color.red)
-                        
-                        
-                        //Spacer()
+                    }
+                    //.frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .padding(.bottom)
+                    //.border(Color.black)
+                    .navigationTitle(ticker)
+                    .toolbar {
+                        FavoriteButton(ticker: ticker)
                     }
                 }
-            }
-            //.frame(maxWidth: .infinity, maxHeight: .infinity)
-            .padding(.bottom)
-            //.border(Color.black)
-            .navigationTitle(ticker)
-            .toolbar {
-                FavoriteButton(ticker: ticker)
             }
         }
         .onAppear() {

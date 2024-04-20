@@ -21,14 +21,14 @@ struct StockPortfolioView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text("Portfolio").font(.title)
+            Text("Portfolio").font(.title2)
             HStack {
                 if let index = tickerIndex {
                     VStack(alignment: .leading) {
                         let sharesOwned = portfolioViewModel.portfolioItems[index].quantity
                         let totalCost = portfolioViewModel.portfolioItems[index].totalCost
                         let avgCost = totalCost / Double(sharesOwned)
-                        let marketValue = (portfolioViewModel.portfolioItems[index].latestPrice ?? avgCost) * Double(sharesOwned)
+                        let marketValue = portfolioViewModel.portfolioItems[index].latestPrice * Double(sharesOwned)
                         let change = marketValue - totalCost
                         
                         HStack {
@@ -60,21 +60,22 @@ struct StockPortfolioView: View {
                             Text("$\(String(format: "%.2f", marketValue))").foregroundStyle(colorForChange(change))
                         }
                     }
-                    .font(.callout)
+                    .font(.footnote)
                 }
                 else {
                     VStack(alignment: .leading) {
                         Text("You have 0 shares of \(ticker).")
                         Text("Start trading!")
                     }
-                    .font(.callout)
+                    .font(.footnote)
                 }
                 Spacer()
                 Button(action: {
                     showTradeSheet = true
                 }) {
                     Text("Trade")
-                        .font(.headline)
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
                         .foregroundColor(.white)
                         .frame(maxWidth: 110)
                         .padding()
@@ -103,6 +104,10 @@ struct TradeSheetView: View {
     
     @State private var showAlert: Bool = false
     @State private var alertMessage: String = ""
+    
+    @State private var showSuccess = false
+    @State private var successfulTradeAction: TradeAction?
+    @State private var successfulTradeShares: Int = 0
 
     var body: some View {
         NavigationView {
@@ -132,7 +137,7 @@ struct TradeSheetView: View {
                 
                 Spacer()
                 
-                Text("$\(String(format: "%.2f", (balanceViewModel.balance ?? 25000))) available to buy \(ticker)")
+                Text("$\(String(format: "%.2f", balanceViewModel.balance)) available to buy \(ticker)")
                     .font(.callout)
                     .foregroundStyle(Color.gray)
                     .padding()
@@ -164,6 +169,21 @@ struct TradeSheetView: View {
                 Alert(title: Text("Error"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
             }
         }
+        .overlay(
+            successOverlay
+        )
+    }
+    
+    var successOverlay: some View {
+        Group {
+            if showSuccess {
+                SuccessView(action: successfulTradeAction!, numberOfShares: successfulTradeShares, ticker: ticker) {
+                    self.showTradeSheet = false
+                }
+            }
+        }
+        .transition(.opacity)
+        .animation(.easeInOut(duration: 0.3), value: showSuccess)
     }
     
     func executeTrade() {
@@ -175,24 +195,32 @@ struct TradeSheetView: View {
         
         switch tradeAction {
         case .buy:
-            guard (balanceViewModel.balance ?? 25000) >= Double(numShares) * (portfolioViewModel.portfolioItems.first(where: { $0.id == ticker })?.latestPrice ?? 0) else {
+            if balanceViewModel.balance >= (Double(numShares) * stockInfo.currentPrice) {
+                portfolioViewModel.buyStock(ticker: ticker, quantity: numShares, totalCost: Double(numShares) * stockInfo.currentPrice)
+                balanceViewModel.balance -= Double(numShares) * stockInfo.currentPrice
+                successfulTradeAction = .buy
+                successfulTradeShares = numShares
+                showSuccess = true
+            } else {
                 alertMessage = "Not enough money to buy"
                 showAlert = true
                 return
             }
         case .sell:
-            guard let sharesOwned = portfolioViewModel.portfolioItems.first(where: { $0.id == ticker })?.quantity, sharesOwned >= numShares else {
+            if let sharesOwned = portfolioViewModel.portfolioItems.first(where: { $0.id == ticker })?.quantity, sharesOwned >= numShares {
+                balanceViewModel.balance += Double(numShares) * stockInfo.currentPrice
+                portfolioViewModel.sellStock(ticker: ticker, quantity: numShares, totalRevenue: Double(numShares) * stockInfo.currentPrice)
+                successfulTradeAction = .sell
+                successfulTradeShares = numShares
+                showSuccess = true
+            } else {
                 alertMessage = "Not enough shares to sell"
                 showAlert = true
                 return
             }
         }
         
-        // If all checks pass, perform the trade logic and then...
-        // Dismiss the sheet and show a success message or update the UI accordingly
-        
         numberOfSharesToTrade = ""
-        showTradeSheet = false
     }
 }
 
@@ -209,6 +237,50 @@ struct GreenButtonStyle: ButtonStyle {
             .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
     }
 }
+
+struct SuccessView: View {
+    var action: TradeAction
+    var numberOfShares: Int
+    var ticker: String
+    var onDismiss: () -> Void
+    
+    var body: some View {
+        VStack {
+            Spacer()
+            
+            Text("Congratulations!")
+                .font(.largeTitle)
+                .fontWeight(.bold)
+                .foregroundStyle(Color.white)
+            
+            Text("You have successfully \(action == .buy ? "bought" : "sold") \(numberOfShares) share\(numberOfShares > 1 ? "s" : "") of \(ticker)")
+                .font(.body)
+                .foregroundStyle(Color.white)
+                .multilineTextAlignment(.center)
+                .padding()
+
+            Spacer()
+            
+            Button(action: {
+                onDismiss()
+            }) {
+                Text("Done")
+                    .font(.headline)
+                    .foregroundColor(.green)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.white)
+                    .cornerRadius(40)
+            }
+            .padding()
+            .padding(.bottom, 40)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.green)
+        .edgesIgnoringSafeArea(.all)
+    }
+}
+
 
 struct StockPortfolioView_Previews: PreviewProvider {
     static var previews: some View {

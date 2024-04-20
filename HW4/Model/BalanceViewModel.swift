@@ -2,7 +2,7 @@ import Foundation
 import Alamofire
 
 class BalanceViewModel: ObservableObject {
-    @Published var balance: Double?
+    @Published var balance: Double = 25000
     @Published var isLoading = false
     
     func fetch() {
@@ -21,9 +21,5 @@ class BalanceViewModel: ObservableObject {
                 }
             }
         }
-    }
-    
-    func setBalance(newBalance: Double) {
-        balance = newBalance
     }
 }

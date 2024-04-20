@@ -6,10 +6,10 @@ struct InsightsView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text("Insights").font(.title)
+            Text("Insights").font(.title2)
                 .padding(.bottom, 10)
             VStack {
-                Text("Insider Sentiments").font(.title)
+                Text("Insider Sentiments").font(.title2)
                     .padding(.bottom, 20)
                 HStack {
                     VStack(alignment: .leading) {

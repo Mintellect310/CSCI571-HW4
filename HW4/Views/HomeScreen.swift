@@ -3,7 +3,7 @@ import SwiftUI
 struct HomeScreen: View {
     var stockWorth: Double {
         portfolioViewModel.portfolioItems.reduce(0.0) { sum, item in
-            sum + (Double(item.quantity) * (item.latestPrice ?? 0))
+            sum + (Double(item.quantity) * (item.latestPrice))
         }
     }
     
@@ -30,7 +30,7 @@ struct HomeScreen: View {
                     }
                     
                     // Portfolio
-                    let balance = balanceViewModel.balance ?? 99999
+                    let balance = balanceViewModel.balance
                     PortfolioView(netWorth: stockWorth + balance, balance: balance)
                     
                     // Favorites

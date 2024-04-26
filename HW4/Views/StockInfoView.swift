@@ -16,6 +16,11 @@ struct StockInfoView: View {
     @EnvironmentObject var favoritesViewModel: FavoritesViewModel
     
     var ticker: String
+    @State private var needsRefresh = true
+    
+    // Favorites-related Toasts
+    @State private var showingToast = false
+    @State private var toastMessage = ""
     
     var body: some View {
         VStack {
@@ -86,18 +91,22 @@ struct StockInfoView: View {
                     //.border(Color.black)
                     .navigationTitle(ticker)
                     .toolbar {
-                        FavoriteButton(ticker: ticker)
+                        FavoriteButton(ticker: ticker, showingToast: $showingToast, toastMessage: $toastMessage)
                     }
+                    .toast(isPresented: $showingToast, message: toastMessage)
                 }
             }
         }
         .onAppear() {
-            stockInfoViewModel.fetch(for: ticker)
-            summaryViewModel.fetch(for: ticker)
-            insightsViewModel.fetch(for: ticker)
-            historicalChartViewModel.fetch(for: ticker)
-            hourlyChartViewModel.fetch(for: ticker)
-            newsViewModel.fetch(for: ticker)
+            if needsRefresh {
+                stockInfoViewModel.fetch(for: ticker)
+                summaryViewModel.fetch(for: ticker)
+                insightsViewModel.fetch(for: ticker)
+                historicalChartViewModel.fetch(for: ticker)
+                hourlyChartViewModel.fetch(for: ticker)
+                newsViewModel.fetch(for: ticker)
+                needsRefresh = false
+            }
         }
     }
     
@@ -123,7 +132,7 @@ struct StockInfoView_Previews: PreviewProvider {
         let favoritesViewModel = FavoritesViewModel()
         favoritesViewModel.loadDummyData()
 
-        return StockInfoView(ticker: "QCOM")
+        return StockInfoView(ticker: "NVDA")
             .environmentObject(balanceViewModel)
             .environmentObject(portfolioViewModel)
             .environmentObject(favoritesViewModel)

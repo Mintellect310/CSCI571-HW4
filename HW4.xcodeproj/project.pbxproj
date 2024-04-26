@@ -214,9 +214,9 @@
 				B57DB2292BC6732C00BF6718 /* StockInfoView.swift */,
 				B52261552BC78B16005B92F1 /* StockView.swift */,
 				B522614F2BC7795B005B92F1 /* SummaryView.swift */,
-				B57DB2252BC4D7B500BF6718 /* File.swift */,
 				B52D90382BCD194800208BAD /* StockPortfolioView.swift */,
 				B51BBBDA2BD38F41005F4BBB /* ToastView.swift */,
+				B57DB2252BC4D7B500BF6718 /* File.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";

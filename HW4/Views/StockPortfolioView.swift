@@ -148,26 +148,27 @@ struct TradeSheetView: View {
                         executeTrade()
                     }
                     .buttonStyle(GreenButtonStyle())
-                    .padding(.leading)
+                    .padding(.trailing, 5)
                     
                     Button("Sell") {
                         tradeAction = .sell
                         executeTrade()
                     }
                     .buttonStyle(GreenButtonStyle())
-                    .padding(.trailing)
+                    .padding(.leading, 5)
                 }
             }
-            .padding()
+            .padding([.horizontal, .bottom])
             .navigationBarItems(trailing: Button(action: {
                 showTradeSheet = false
             }) {
                 Image(systemName: "xmark")
                     .foregroundColor(.black)
             })
-            .alert(isPresented: $showAlert) {
-                Alert(title: Text("Error"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
-            }
+            .toast(isPresented: $showAlert, message: alertMessage)
+            //.alert(isPresented: $showAlert) {
+            //    Alert(title: Text("Error"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
+            //}
         }
         .overlay(
             successOverlay
@@ -214,7 +215,7 @@ struct TradeSheetView: View {
                 successfulTradeShares = numShares
                 showSuccess = true
             } else {
-                alertMessage = "Not enough shares to sell"
+                alertMessage = "Not enough to sell"
                 showAlert = true
                 return
             }
@@ -234,7 +235,6 @@ struct GreenButtonStyle: ButtonStyle {
             .padding()
             .background(Color.green)
             .cornerRadius(40)
-            .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
     }
 }
 

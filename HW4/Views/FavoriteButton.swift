@@ -2,8 +2,9 @@ import SwiftUI
 
 struct FavoriteButton: View {
     var ticker: String
-    
     @EnvironmentObject var favoritesViewModel: FavoritesViewModel
+    @Binding var showingToast: Bool
+    @Binding var toastMessage: String
     
     var body: some View {
         Button(action: toggleFavorite) {
@@ -28,10 +29,13 @@ struct FavoriteButton: View {
         if isFavorite {
             if let index = favoritesViewModel.favorites.firstIndex(where: { $0.id == ticker }) {
                 favoritesViewModel.deleteFavorite(at: IndexSet(integer: index))
+                toastMessage = "Removing \(ticker) from Favorites"
             }
         } else {
             favoritesViewModel.add(ticker: ticker)
+            toastMessage = "Adding \(ticker) to Favorites"
         }
+        showingToast = true
     }
 }
 
